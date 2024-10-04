@@ -1,0 +1,284 @@
+1. gai_strerror
+Biblioteca: <netdb.h>
+Prototipo: const char *gai_strerror(int errcode);
+Recibe:
+
+errcode - Código de error devuelto por funciones de getaddrinfo.
+Devuelve: Una cadena que describe el error correspondiente al código proporcionado.
+2. socketpair
+Biblioteca: <sys/socket.h>
+Prototipo: int socketpair(int domain, int type, int protocol, int sv[2]);
+Recibe:
+
+domain - Dominio de la red (por ejemplo, AF_UNIX o AF_INET).
+type - Tipo de socket (por ejemplo, SOCK_STREAM o SOCK_DGRAM).
+protocol - Protocolo a usar (normalmente 0 para el protocolo predeterminado).
+sv - Array de dos enteros donde se almacenarán los descriptores de socket.
+Devuelve: Un entero que indica el éxito (0) o el error (-1) en la creación del socket par.
+3. htons
+Biblioteca: <netinet/in.h>
+Prototipo: uint16_t htons(uint16_t hostshort);
+Recibe:
+
+hostshort - Número de 16 bits en orden de bytes de host.
+Devuelve: El número en orden de bytes de red.
+4. htonl
+Biblioteca: <netinet/in.h>
+Prototipo: uint32_t htonl(uint32_t hostlong);
+Recibe:
+
+hostlong - Número de 32 bits en orden de bytes de host.
+Devuelve: El número en orden de bytes de red.
+5. ntohs
+Biblioteca: <netinet/in.h>
+Prototipo: uint16_t ntohs(uint16_t netshort);
+Recibe:
+
+netshort - Número de 16 bits en orden de bytes de red.
+Devuelve: El número en orden de bytes de host.
+6. ntohl
+Biblioteca: <netinet/in.h>
+Prototipo: uint32_t ntohl(uint32_t netlong);
+Recibe:
+
+netlong - Número de 32 bits en orden de bytes de red.
+Devuelve: El número en orden de bytes de host.
+7. poll
+Biblioteca: <poll.h>
+Prototipo: int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+Recibe:
+
+fds - Puntero a un array de estructuras pollfd que especifican los descriptores de archivo a monitorear.
+nfds - Número de elementos en el array fds.
+timeout - Tiempo máximo a esperar (en milisegundos) o -1 para esperar indefinidamente.
+Devuelve: Número de descriptores de archivo listos o -1 en caso de error.
+8. epoll_create
+Biblioteca: <sys/epoll.h>
+Prototipo: int epoll_create(int size);
+Recibe:
+
+size - Tamaño sugerido para la nueva instancia de epoll.
+Devuelve: Un descriptor de archivo para la instancia epoll, o -1 en caso de error.
+9. epoll_ctl
+Biblioteca: <sys/epoll.h>
+Prototipo: int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+Recibe:
+
+epfd - Descriptor de archivo para la instancia epoll.
+op - Operación a realizar (por ejemplo, EPOLL_CTL_ADD, EPOLL_CTL_MOD, EPOLL_CTL_DEL).
+fd - Descriptor de archivo a modificar.
+event - Puntero a una estructura epoll_event que describe el evento.
+Devuelve: 0 en caso de éxito o -1 en caso de error.
+10. epoll_wait
+Biblioteca: <sys/epoll.h>
+Prototipo: int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+Recibe:
+
+epfd - Descriptor de archivo para la instancia epoll.
+events - Puntero a un array donde se almacenarán los eventos listos.
+maxevents - Número máximo de eventos a devolver.
+timeout - Tiempo máximo a esperar (en milisegundos) o -1 para esperar indefinidamente.
+Devuelve: Número de eventos listos o -1 en caso de error.
+11. socket
+Biblioteca: <sys/socket.h>
+Prototipo: int socket(int domain, int type, int protocol);
+Recibe:
+
+domain - Dominio de la red (por ejemplo, AF_INET).
+type - Tipo de socket (por ejemplo, SOCK_STREAM).
+protocol - Protocolo a usar (normalmente 0 para el predeterminado).
+Devuelve: Un descriptor de archivo para el socket creado o -1 en caso de error.
+12. accept
+Biblioteca: <sys/socket.h>
+Prototipo: int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+Recibe:
+
+sockfd - Descriptor de archivo del socket de escucha.
+addr - Puntero a una estructura sockaddr donde se almacenará la dirección del cliente.
+addrlen - Puntero a un entero que contiene el tamaño de addr.
+Devuelve: Un descriptor de archivo para el nuevo socket conectado o -1 en caso de error.
+13. listen
+Biblioteca: <sys/socket.h>
+Prototipo: int listen(int sockfd, int backlog);
+Recibe:
+
+sockfd - Descriptor de archivo del socket que se va a poner en modo de escucha.
+backlog - Número máximo de conexiones en espera.
+Devuelve: 0 en caso de éxito o -1 en caso de error.
+14. send
+Biblioteca: <sys/socket.h>
+Prototipo: ssize_t send(int sockfd, const void *buf, size_t len, int flags);
+Recibe:
+
+sockfd - Descriptor de archivo del socket.
+buf - Puntero al buffer que contiene los datos a enviar.
+len - Número de bytes a enviar.
+flags - Opciones de envío (normalmente 0).
+Devuelve: Número de bytes enviados o -1 en caso de error.
+15. recv
+Biblioteca: <sys/socket.h>
+Prototipo: ssize_t recv(int sockfd, void *buf, size_t len, int flags);
+Recibe:
+
+sockfd - Descriptor de archivo del socket.
+buf - Puntero al buffer donde se almacenarán los datos recibidos.
+len - Número máximo de bytes a recibir.
+flags - Opciones de recepción (normalmente 0).
+Devuelve: Número de bytes recibidos o -1 en caso de error.
+16. chdir
+Biblioteca: <unistd.h>
+Prototipo: int chdir(const char *path);
+Recibe:
+
+path - Cadena que representa la ruta del directorio al que se desea cambiar.
+Devuelve: Un entero que indica el éxito (0) o el error (-1) en el cambio de directorio.
+17. bind
+Biblioteca: <sys/socket.h>
+Prototipo: int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+Recibe:
+
+sockfd - Descriptor de archivo del socket.
+addr - Puntero a una estructura sockaddr que especifica la dirección a enlazar.
+addrlen - Tamaño de la estructura addr.
+Devuelve: 0 en caso de éxito o -1 en caso de error.
+18. connect
+Biblioteca: <sys/socket.h>
+Prototipo: int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+Recibe:
+
+sockfd - Descriptor de archivo del socket.
+addr - Puntero a una estructura sockaddr que especifica la dirección del servidor.
+addrlen - Tamaño de la estructura addr.
+Devuelve: 0 en caso de éxito o -1 en caso de error.
+19. getaddrinfo
+Biblioteca: <netdb.h>
+Prototipo: int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);
+Recibe:
+
+node - Nombre de host o dirección IP.
+service - Nombre del servicio o número de puerto.
+hints - Puntero a una estructura addrinfo que especifica criterios de búsqueda.
+res - Doble puntero donde se almacenarán los resultados.
+Devuelve: 0 en caso de éxito o un código de error.
+20. freeaddrinfo
+Biblioteca: <netdb.h>
+Prototipo: void freeaddrinfo(struct addrinfo *res);
+Recibe:
+
+res - Puntero a la estructura addrinfo que se desea liberar.
+Devuelve: No devuelve valor. Se utiliza para liberar la memoria asignada por getaddrinfo.
+
+21. setsockopt
+Biblioteca: <sys/socket.h>
+Prototipo: int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
+Recibe:
+
+sockfd - Descriptor de archivo del socket.
+level - Nivel del protocolo (por ejemplo, SOL_SOCKET para opciones de socket).
+optname - Opción a establecer (por ejemplo, SO_REUSEADDR).
+optval - Puntero al valor de la opción.
+optlen - Tamaño del valor de la opción.
+Devuelve: 0 en caso de éxito o -1 en caso de error.
+22. getsockname
+Biblioteca: <sys/socket.h>
+Prototipo: int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+Recibe:
+
+sockfd - Descriptor de archivo del socket.
+addr - Puntero a una estructura sockaddr donde se almacenará la dirección del socket.
+addrlen - Puntero a un entero que contiene el tamaño de addr.
+Devuelve: 0 en caso de éxito o -1 en caso de error.
+23. getprotobyname
+Biblioteca: <netdb.h>
+Prototipo: struct protoent *getprotobyname(const char *name);
+Recibe:
+
+name - Nombre del protocolo (por ejemplo, "tcp" o "udp").
+Devuelve: Puntero a una estructura protoent que describe el protocolo, o NULL si no se encuentra.
+24. fcntl
+Biblioteca: <fcntl.h>
+Prototipo: int fcntl(int fd, int cmd, ... /* arg */ );
+Recibe:
+
+fd - Descriptor de archivo.
+cmd - Comando que especifica la operación (por ejemplo, F_GETFL para obtener las flags del archivo).
+arg - Argumento opcional que puede ser necesario para algunos comandos.
+Devuelve: Depende del comando, pero generalmente 0 en caso de éxito o -1 en caso de error.
+25. access
+Biblioteca: <unistd.h>
+Prototipo: int access(const char *pathname, int mode);
+Recibe:
+
+pathname - Cadena que representa la ruta del archivo.
+mode - Modos de acceso a verificar (por ejemplo, R_OK para lectura, W_OK para escritura).
+Devuelve: 0 si el acceso está permitido, o -1 en caso de error.
+26. stat
+Biblioteca: <sys/stat.h>
+Prototipo: int stat(const char *pathname, struct stat *statbuf);
+Recibe:
+
+pathname - Cadena que representa la ruta del archivo.
+statbuf - Puntero a una estructura stat donde se almacenará la información del archivo.
+Devuelve: 0 en caso de éxito o -1 en caso de error.
+27. opendir
+Biblioteca: <dirent.h>
+Prototipo: DIR *opendir(const char *name);
+Recibe:
+
+name - Cadena que representa el nombre del directorio a abrir.
+Devuelve: Puntero a un objeto DIR en caso de éxito, o NULL en caso de error.
+28. readdir
+Biblioteca: <dirent.h>
+Prototipo: struct dirent *readdir(DIR *dirp);
+Recibe:
+
+dirp - Puntero a un objeto DIR obtenido de opendir.
+Devuelve: Puntero a una estructura dirent que representa la siguiente entrada del directorio, o NULL si no hay más entradas o se produce un error.
+29. closedir
+Biblioteca: <dirent.h>
+Prototipo: int closedir(DIR *dirp);
+Recibe:
+
+dirp - Puntero a un objeto DIR que se desea cerrar.
+Devuelve: 0 en caso de éxito o -1 en caso de error.
+
+
+
+fcntl - F_SETFL
+Descripción:
+Este comando de fcntl se usa para establecer las flags de un descriptor de archivo. Se utiliza junto con flags de archivo como O_NONBLOCK o O_APPEND. Cuando se llama a fcntl con el comando F_SETFL, las flags actuales del descriptor se sobrescriben con las proporcionadas.
+
+Uso típico:
+
+
+int flags = fcntl(fd, F_GETFL, 0);  
+flags |= O_NONBLOCK;  
+fcntl(fd, F_SETFL, flags);
+Efecto: Establece las flags de estado para el descriptor de archivo.
+
+2. fcntl - O_NONBLOCK
+Descripción:
+O_NONBLOCK es una flag que puede establecerse en un descriptor de archivo usando F_SETFL. Esta flag indica que las operaciones de entrada/salida (lectura, escritura) en ese descriptor no deben bloquearse si no hay datos disponibles de inmediato.
+
+Ejemplo de uso:
+
+
+int flags = fcntl(fd, F_GETFL, 0);
+flags |= O_NONBLOCK;
+fcntl(fd, F_SETFL, flags);
+Efecto:
+El descriptor de archivo funcionará en modo no bloqueante, lo que significa que las llamadas como read o write no se detendrán esperando datos si no están disponibles inmediatamente.
+
+3. fcntl - FD_CLOEXEC
+Descripción:
+FD_CLOEXEC es una flag que se puede establecer en un descriptor de archivo para indicar que el descriptor debe cerrarse automáticamente cuando el proceso ejecute una nueva imagen de programa con execve o funciones relacionadas.
+
+Ejemplo de uso:
+
+
+int flags = fcntl(fd, F_GETFD);
+flags |= FD_CLOEXEC;
+fcntl(fd, F_SETFD, flags);
+Efecto:
+El descriptor se cerrará automáticamente si el proceso invoca execve, evitando que se herede en los programas ejecutados.
+
