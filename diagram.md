@@ -2,7 +2,7 @@
                            |
            [Cargar archivo de configuración]
                             |
-            [¿Archivo de configuración existe?]
+            [¿Archivo de configuración existe y es valido?]
                      /              \
                     No               Sí
                     |                 |
@@ -24,7 +24,7 @@
                                    /      \
                                 No        Sí
                                 |          |
-        [Mostrar mensaje de error]  [Estableer opciones del socket]
+        [Mostrar mensaje de error]  [Establecer opciones del socket]
                       |                   |
       [Finalizar programa]       [Configurar tiempo de espera]
                                         |
@@ -44,8 +44,8 @@
               |                   |
   [Finalizar programa]     [Esperar conexión de cliente]
                                     |
-                        [¿Conexión recibida?]
-                           /       \
+                          [Esperar en poll()]
+                         /       \
                         No         Sí
                         |           |
         [Esperar en poll()]  [Aceptar conexión]
@@ -59,8 +59,8 @@
                          No             Sí
                          |               |
          [Enviar respuesta 400]   [Extraer método HTTP]
-                       |               |
-       [Fin de la respuesta]  [    ¿Método HTTP?   ]
+                       |                     |
+       [Fin de la respuesta]  [_________¿Método HTTP?____________________]
                               /   |                        \    \      \
                           GET  POST                         DELETE OPTIONS PATCH
                          |     |                               |      |      |
