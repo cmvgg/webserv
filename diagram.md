@@ -67,24 +67,24 @@
 [Extraer ruta del archivo] [Extraer datos del cuerpo] [Eliminar archivo]   [¿Método PATCH?]
   |                          |                                             /          \
 [¿Archivo existe?]     [¿Datos de tamaño válido?]                         No          Sí
-  /              \               /        \                               |            |
- No              Sí           No          Sí                            [Fin] [Validar actualización parcial]
-  |                |           |            |                                  |
+  /      |       \                /        \                               |            |
+ No      Sí      Sí grande      No          Sí                            [Fin] [Validar actualización parcial]
+  |       *         |           |            |                                  |
 [Enviar 404] [Enviar 413] [Enviar 200] [¿Archivo enviado?]                    [¿Archivo existe?]
                                         /            \                        /      \
                                        No            Sí                      No       Sí
                                        |              |                      |         |
                                 [Enviar 500]  [Enviar 200]         [Enviar 404] [Actualizar archivo]
                                  |                                               |
-                [Retornar a cliente]                       [¿Actualización exitosa?]
-                                                           /        \
-                                                          No         Sí
-                                                         |          |
-                                                  [Enviar 500] [Enviar 200 o 204]
-                                                                    |
-                                                              [Retornar a cliente]
-                                                                    |
-                                                            [Cerrar conexión]
-                                                                 |
-                                                       [Volver a esperar conexión]
+                                [Retornar a cliente]                       [¿Actualización exitosa?]
+                                                                               /        \
+                                                                              No         Sí
+                                                                               |          |
+                                                                      [Enviar 500] [*Enviar 200 o 204]
+                                                                                         |
+                                                                                 [Retornar a cliente]
+                                                                                           |
+                                                                                 [Cerrar conexión]
+                                                                                        |
+                                                                       [Volver a esperar conexión]
 
