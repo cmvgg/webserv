@@ -1,0 +1,226 @@
+// Pseudocódigo detallado para un servidor web en C++ utilizando epoll
+
+INICIO DEL SERVIDOR
+
+1. Inicializar env:
+   - Configuración de puerto (por defecto: 8080).
+   - Configuración de host (por defecto: INADDR_ANY).
+   - Configuración de tamaño máximo del cuerpo de la solicitud (por defecto: 10 MB).
+   - Configuración de directorio raíz (por defecto: "./www").
+   - Lista de métodos HTTP permitidos: [GET, POST, DELETE].
+   - Inicializar lista de sockets de servidor.
+
+2. Cargar archivo de configuración:
+   - Intentar abrir el archivo de configuración en modo lectura.
+     - Si el archivo no existe:
+       - Mostrar mensaje: "Archivo de configuración no encontrado, usando configuración predeterminada".
+       - Cargar configuraciones predeterminadas.
+     - Si el archivo existe pero es inválido:
+       - Mostrar mensaje: "Archivo de configuración inválido, usando configuración predeterminada".
+       - Cargar configuraciones predeterminadas.
+     - Si el archivo es válido:
+       - Leer las configuraciones específicas del archivo:
+         - Extraer el puerto.
+         - Extraer el host.
+         - Extraer el tamaño máximo del cuerpo.
+         - Extraer el directorio raíz.
+       - Fin si.
+     - Fin si.
+
+3. Validar las configuraciones cargadas:
+   - Verificar que el puerto esté en el rango de 1 a 65535.
+     - Si el puerto es inválido:
+       - Mostrar mensaje: "Puerto inválido en configuración, usando puerto predeterminado 8080".
+       - Establecer puerto a 8080.
+     - Fin si.
+   - Verificar que el directorio raíz exista y sea accesible:
+     - Si la ruta es inválida:
+       - Mostrar mensaje: "Ruta raíz inválida o inaccesible, usando './www'".
+       - Establecer "./www" como directorio raíz.
+     - Fin si.
+   - Verificar el tamaño máximo del cuerpo de la solicitud:
+     - Si el límite es menor a 1 KB o mayor a 1 GB:
+       - Mostrar mensaje: "Tamaño máximo del cuerpo inválido, usando 10 MB".
+       - Establecer límite predeterminado de 10 MB.
+     - Fin si.
+   - Verificar los métodos HTTP permitidos:
+     - Si se configura un método no soportado:
+       - Mostrar mensaje: "Método HTTP no soportado, ajustando a métodos permitidos: GET, POST, DELETE".
+       - Establecer métodos permitidos a: [GET, POST, DELETE].
+     - Fin si.
+
+4. Crear sockets para cada puerto y host configurado:
+   PARA CADA configuración de servidor:
+     - Llamar a `socket(AF_INET, SOCK_STREAM, 0)` para crear un socket.
+       - Si `socket()` devuelve -1:
+         - Mostrar mensaje: "Error al crear socket".
+         - Terminar programa.
+       - Fin si.
+     - Configurar el socket para permitir reutilización de direcciones con `setsockopt()`.
+       - Establecer opción SO_REUSEADDR:
+         - Si `setsockopt()` devuelve -1:
+           - Mostrar mensaje: "Error al configurar socket para reutilización de direcciones".
+           - Cerrar el socket.
+           - Terminar programa.
+         - Fin si.
+     - Crear la estructura `sockaddr_in` para enlazar el socket:
+       - Asignar dirección IP a `INADDR_ANY` (aceptar conexiones desde cualquier interfaz).
+       - Asignar el puerto configurado en formato de red (htons).
+     - Llamar a `bind()` para asociar el socket a la dirección y puerto:
+       - Si `bind()` devuelve -1:
+         - Mostrar mensaje: "Error al hacer bind del socket al puerto".
+         - Cerrar el socket.
+         - Terminar programa.
+       - Fin si.
+     - Llamar a `listen()` para poner el socket en modo de escucha:
+       - Si `listen()` devuelve -1:
+         - Mostrar mensaje: "Error al poner el socket en modo de escucha".
+         - Cerrar el socket.
+         - Terminar programa.
+       - Fin si.
+     - Registrar el socket en `epoll`:
+       - Llamar a `epoll_ctl()` para añadir el socket del servidor a `epoll` con `EPOLLIN`.
+       - Si `epoll_ctl()` devuelve -1:
+         - Mostrar mensaje: "Error al registrar socket en epoll".
+         - Cerrar el socket.
+         - Terminar programa.
+       - Fin si.
+   Fin PARA CADA.
+
+5. Inicializar epoll para manejar múltiples sockets:
+   - Llamar a `epoll_create1(0)` para crear el descriptor de epoll.
+     - Si `epoll_create1()` devuelve -1:
+       - Mostrar mensaje: "Error al crear epoll".
+       - Terminar programa.
+     - Fin si.
+
+6. Iniciar el bucle principal del servidor:
+   MIENTRAS (el servidor esté en ejecución):
+
+      7. Llamar a `epoll_wait()` para esperar eventos en los sockets registrados:
+         - Almacenar el número de eventos en una variable.
+         - Si `epoll_wait()` devuelve -1:
+           - Mostrar mensaje: "Error en epoll_wait".
+           - Continuar al siguiente ciclo del bucle.
+         - Si no hay eventos, continuar esperando.
+         - Fin si.
+
+      8. Procesar eventos recibidos de epoll:
+         PARA CADA evento en la lista de eventos:
+            - Si el evento corresponde a un socket del servidor (nueva conexión entrante):
+              - Llamar a `accept()` para aceptar la conexión del cliente:
+                - Si `accept()` devuelve -1:
+                  - Mostrar mensaje: "Error al aceptar la conexión del cliente".
+                  - Continuar con el siguiente evento.
+                - Fin si.
+              - Hacer que el nuevo socket del cliente sea no bloqueante usando `fcntl()`:
+                - Si `fcntl()` falla:
+                  - Mostrar mensaje: "Error al configurar socket del cliente como no bloqueante".
+                  - Cerrar el socket del cliente.
+                  - Continuar con el siguiente evento.
+                - Fin si.
+              - Registrar el socket del cliente en `epoll` para monitorear eventos de lectura (`EPOLLIN`).
+
+            - Si el evento corresponde a un socket de cliente (solicitud del cliente):
+              - Llamar a `recv()` para leer la solicitud HTTP del cliente:
+                - Inicializar un buffer para almacenar la solicitud.
+                - Si `recv()` devuelve 0:
+                  - El cliente cerró la conexión.
+                  - Cerrar el socket del cliente y eliminarlo de epoll.
+                  - Continuar con el siguiente evento.
+                - Si `recv()` devuelve -1:
+                  - Mostrar mensaje: "Error al leer datos del cliente".
+                  - Cerrar el socket del cliente.
+                  - Continuar con el siguiente evento.
+                - Fin si.
+
+              9. Analizar la solicitud HTTP:
+                 - Dividir la solicitud en líneas separadas usando un delimitador.
+                 - Extraer el método HTTP (GET, POST, DELETE, etc.) de la primera línea.
+                 - Extraer la ruta solicitada.
+                 - Validar si el método es uno de los permitidos.
+                 - Si el método es inválido:
+                   - Enviar respuesta 405 (Method Not Allowed) y cerrar el socket.
+                 - Fin si.
+
+              10. Manejar solicitudes GET:
+                  - Verificar si la ruta solicitada corresponde a un archivo en el directorio raíz:
+                    - Construir la ruta completa usando el directorio raíz y la ruta solicitada.
+                    - Llamar a `stat()` para verificar si el archivo existe:
+                      - Si el archivo no existe, enviar respuesta 404 (Not Found) y cerrar el socket.
+                      - Si el archivo existe, abrirlo con `open()`:
+                        - Si `open()` falla, enviar respuesta 500 (Internal Server Error) y cerrar el socket.
+                        - Leer el archivo en bloques usando `read()` y enviarlo al cliente usando `send()`:
+                          - Si `send()` falla, mostrar mensaje "Error al enviar el archivo al cliente".
+                        - Cerrar el socket del cliente al terminar.
+                  - Fin si.
+
+              11. Manejar solicitudes POST:
+                  - Leer el cuerpo de la solicitud (con un tamaño determinado).
+                  - Verificar el tamaño del cuerpo contra el límite configurado:
+                    - Si es demasiado grande, enviar respuesta 413 (Payload Too Large) y cerrar el socket.
+                    - Si es válido, guardar los datos en el archivo especificado:
+                      - Llamar a `open()` para abrir un archivo de destino en modo escritura.
+                      - Escribir los datos recibidos en el archivo usando `write()`.
+                      - Si `write()` falla, enviar respuesta 500 (Internal Server Error) y cerrar el socket.
+                      - Enviar respuesta 201 (Created) si se guarda correctamente.
+                  - Cerrar el socket del cliente.
+
+              12. Manejar solicitudes DELETE:
+                  - Verificar si la ruta solicitada corresponde a un archivo en el directorio raíz:
+                    - Construir la ruta completa.
+                    - Llamar a `stat()` para verificar si el archivo existe:
+                      - Si no existe, enviar respuesta 404 (Not Found) y cerrar el socket.
+                      - Si existe, llamar a `remove()` para eliminar el archivo:
+                        - Si `remove()` falla, enviar respuesta 500 (Internal Server Error) y cerrar el socket.
+                        - Si se elimina correctamente, enviar respuesta 200 (OK) y cerrar el socket.
+                  - Fin si.
+
+              13. Manejar el método "418 I'm a teapot":
+                  - Si el cliente intenta usar el método BREW:
+                    - Enviar respuesta 418 (I'm a teapot) indicando que el servidor es una tetera y no puede hacer café.
+                  - Cerrar el socket.
+
+              14. Ejecutar scripts CGI (ej. para archivos `.php`):
+                  - Verificar si el archivo solicitado requiere ejecutar CGI:
+                    - Si es necesario, llamar a `fork()` para crear un proceso hijo:
+                      - En el proceso hijo:
+                        - Llamar a `execve()` para ejecutar el script CGI.
+                        - Enviar la salida del CGI al cliente.
+                        - Si `execve()` falla, enviar respuesta 500 (Internal Server Error).
+                  - Cerrar el socket del cliente.
+
+              15. Cerrar el socket del cliente después de enviar la respuesta.
+         Fin PARA CADA evento.
+
+   FIN MIENTRAS.
+
+16. Cerrar todos los sockets del servidor y liberar recursos:
+   - Llamar a `close()` para cerrar cada socket registrado.
+   - Llamar a `epoll_ctl()` para eliminar los sockets de epoll.
+   - Cerrar el descriptor de epoll con `close()`.
+
+17. Manejar señales del sistema:
+   - Si se recibe una señal de terminación (SIGINT, SIGTERM):
+     - Mostrar mensaje "Servidor está cerrando, liberando recursos".
+     - Cerrar todos los sockets y liberar recursos.
+     - Terminar el programa.
+
+18. Generar respuestas de error predeterminadas:
+   - Si no hay páginas de error personalizadas:
+     - Generar respuestas HTML simples para los errores (404, 500, 418, etc.).
+       - Crear funciones que devuelvan contenido HTML básico para cada error.
+       - Mostrar mensajes amigables al usuario en cada error.
+
+19. Realizar pruebas de estrés para asegurar que el servidor se mantenga estable:
+   - Someter el servidor a múltiples solicitudes simultáneas:
+     - Utilizar herramientas como `ab` (Apache Benchmark) para enviar múltiples solicitudes.
+     - Monitorear el uso de recursos del servidor para asegurarse de que pueda manejar la carga sin bloquearse.
+
+20. Documentar el código:
+   - Comentar cada función y bloque de código con descripciones claras:
+     - Explicar la funcionalidad y el flujo de datos.
+     - Incluir ejemplos de entradas y salidas esperadas.
+     - Proporcionar notas sobre limitaciones conocidas y errores comunes.
+
+FIN DEL SERVIDOR

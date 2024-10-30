@@ -87,4 +87,3 @@
                                                                         [Cerrar conexión]
                                                                                 |
                                                                      [Volver a esperar conexión]
-
